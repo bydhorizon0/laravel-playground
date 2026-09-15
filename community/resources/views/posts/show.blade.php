@@ -161,6 +161,16 @@
                                 답글
                             </button>
 
+                            @can('update', $comment)
+                                <button
+                                        type="button"
+                                        onclick="document.getElementById('edit-comment-{{ $comment->id }}').classList.toggle('hidden')"
+                                        class="rounded px-2 py-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+                                >
+                                    수정
+                                </button>
+                            @endcan
+
                             @can('delete', $comment)
                                 <form
                                         action="{{ route('comments.destroy', [$post, $comment]) }}"
@@ -182,9 +192,52 @@
 
                     <!-- 댓글 내용 -->
                     <div class="mt-3 pl-10">
-                        <p class="text-sm leading-6 text-gray-700">
-                            {{ $comment->content }}
-                        </p>
+                        @if($comment->trashed())
+                            <p class="text-sm leading-6 text-gray-700">
+                                삭제된 댓글입니다.
+                            </p>
+                        @else
+                            <p class="text-sm leading-6 text-gray-700">
+                                {{ $comment->content }}
+                            </p>
+                        @endif
+
+                        <!-- 댓글 수정 폼 -->
+                        @can('update', $comment)
+                            <form
+                                    id="edit-comment-{{ $comment->id }}"
+                                    action="{{ route('comments.update', [$post, $comment]) }}"
+                                    method="POST"
+                                    class="mt-4 hidden rounded-lg bg-gray-50 p-4"
+                            >
+                                @csrf
+                                @method('PUT')
+
+                                <textarea
+                                        name="content"
+                                        rows="3"
+                                        required
+                                        class="w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                                >{{ old('content', $comment->content) }}</textarea>
+
+                                <div class="mt-2 flex justify-end gap-2">
+                                    <button
+                                            type="button"
+                                            onclick="document.getElementById('edit-comment-{{ $comment->id }}').classList.add('hidden')"
+                                            class="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-200"
+                                    >
+                                        취소
+                                    </button>
+
+                                    <button
+                                            type="submit"
+                                            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                                    >
+                                        수정
+                                    </button>
+                                </div>
+                            </form>
+                        @endcan
 
                         <!-- 답글 작성 폼 -->
                         <form

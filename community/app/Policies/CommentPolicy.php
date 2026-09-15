@@ -28,7 +28,9 @@ class CommentPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        // User $user가 인자로 들어왔다는 것 자체가 이미 인증된 사용자라는 전제
+        // 그래서 $user !== null; 같이 따로 안 해줘도 된다.
+        return true;
     }
 
     /**
@@ -36,7 +38,7 @@ class CommentPolicy
      */
     public function update(User $user, Comment $comment): bool
     {
-        return false;
+        return $user->id === $comment->user_id;
     }
 
     /**

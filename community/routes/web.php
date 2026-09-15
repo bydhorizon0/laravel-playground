@@ -29,6 +29,10 @@ Route::controller(CommentController::class)->group(function () {
     Route::post('/posts/{post}/comments', 'store')
         ->name('comments.store');
 
+    Route::put('/posts/{post}/comments/{comment}', 'update')
+        ->scopeBindings()
+        ->name('comments.update');
+
     Route::delete('/posts/{post}/comments/{comment}', 'destroy')
         // scopeBindings()는 중첩된 Route Model Binding에서 부모 모델과 자식 모델의 관계까지 확인하도록 하는 기능
         // 이 comment가 이 post에 속한 댓글인가?

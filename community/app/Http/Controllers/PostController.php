@@ -97,8 +97,9 @@ class PostController extends Controller
             'attachments',
             'reports',
             'comments' => function ($query) {
-                // 댓글을 최신순으로 정렬하고, 댓글 작성자 정보를 함께 로드
-                $query->whereNull('parent_id')
+                // withTrashed() 기능은?
+                $query->withTrashed()
+                    ->whereNull('parent_id')
                     ->latest()
                     ->with(['user', 'replies.user']);
             },

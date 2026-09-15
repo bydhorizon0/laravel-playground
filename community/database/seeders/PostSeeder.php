@@ -31,7 +31,7 @@ class PostSeeder extends Seeder
             return;
         }
 
-        $totalCount = 200_000; // 총 생성 수량
+        $totalCount = 100_000; // 총 생성 수량
         $chunkSize = 3_000; // 1회 Bulk Insert당 레코드 수
         $now = now()->toDateTimeString();
 
