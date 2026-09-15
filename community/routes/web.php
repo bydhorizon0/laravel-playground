@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostLikeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,13 +10,16 @@ Route::get('/', function () {
 })->name('main');
 
 Route::controller(AuthController::class)->group(function () {
-    Route::get('/login', 'showLogin')->name('auth.login');
-    Route::post('/login', 'login');
+    Route::get('/login', 'showLogin')->name('login');
+    Route::post('/login', 'login')->name('login.submit');
 
-    Route::get('/register', 'showRegister')->name('auth.register');
-    Route::post('/register', 'register');
+    Route::get('/register', 'showRegister')->name('register');
+    Route::post('/register', 'register')->name('register.submit');
 
-    Route::post('/logout', 'logout')->name('auth.logout');
+    Route::post('/logout', 'logout')->name('logout');
 });
 
 Route::resource('posts', PostController::class);
+
+Route::post('/post/{post}/like', [PostLikeController::class, 'store'])
+    ->name('posts.like');

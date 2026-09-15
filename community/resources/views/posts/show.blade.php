@@ -39,8 +39,9 @@
                     <span>작성일: {{ $post->created_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span>좋아요 {{ $post->likes_count }}</span>
-                    <span>댓글 {{ $post->comments_count }}</span>
+                    <span>조회수 {{ $post->view_count }}</span>
+                    <span>좋아요 {{ $post->like_count }}</span>
+                    <span>댓글 {{ $post->comment_count }}</span>
                 </div>
             </div>
         </header>
@@ -103,7 +104,7 @@
 
     <!-- 댓글 영역 -->
     <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
-        <h2 class="text-lg font-bold text-gray-900">댓글 ({{ $post->comments_count }})</h2>
+        <h2 class="text-lg font-bold text-gray-900">댓글 ({{ $post->comment_count }})</h2>
 
         {{--<!-- 댓글 작성 폼 -->
         <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="space-y-3">

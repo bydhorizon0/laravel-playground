@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
+use function auth;
 use function compact;
 use function redirect;
 use function view;
@@ -26,8 +27,11 @@ class PostController extends Controller
         $posts = Post::query()
             // 1. N+1 문제 예방: 단일/다대다 관계 Eager Loading
             ->with(['user', 'category', 'tags'])
-            // 2. N+1 문제 및 메모리 오버헤드 예방: 연관 모델의 '개수'만 필요한 경우
-            ->withCount(['comments', 'likes'])
+            ->withExists([
+                'likes as is_liked' => function ($query) {
+                    $query->where('user_id', auth()->id());
+                },
+            ])
             // 검색어가 입력되었을 때만 쿼리 조건 추가
             ->when($request->filled('search'), function (Builder $query) use ($request) {
                 $search = $request->input('search');
@@ -97,7 +101,7 @@ class PostController extends Controller
             },
         ]);
 
-        $post->loadCount(['likes', 'comments']);
+        $post->increment('view_count');
 
         return view('posts.show', compact('post'));
     }

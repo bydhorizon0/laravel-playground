@@ -46,8 +46,29 @@
             <div class="text-sm text-gray-600 space-y-1">
                 <p>작성자: {{ $post->user->name }}</p>
                 <p>카테고리: {{ $post->category->name }}</p>
-                <p>댓글 수: {{ $post->comments_count }}</p>
-                <p>좋아요 수: {{ $post->likes_count }}</p>
+                <p>조회수: {{ $post->view_count }}</p>
+                <p>댓글 수: {{ $post->comment_count }}</p>
+                <p>좋아요 수: {{ $post->like_count }}</p>
+                @auth
+                    <form action="{{ route('posts.like', $post) }}" method="POST">
+                        @csrf
+                        @if($post->is_liked)
+                            <button
+                                    type="submit"
+                                    class="px-3 py-1 bg-red-500 text-white rounded"
+                            >
+                                ❤️ 좋아요
+                            </button>
+                        @else
+                            <button
+                                    type="submit"
+                                    class="px-3 py-1 bg-gray-200 text-gray-700 rounded"
+                            >
+                                🤍 좋아요
+                            </button>
+                        @endif
+                    </form>
+                @endauth
             </div>
             <div class="mt-3 flex items-center gap-1">
                 <span class="text-xs font-semibold text-gray-500">태그:</span>
