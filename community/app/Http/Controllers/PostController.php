@@ -42,7 +42,8 @@ class PostController extends Controller
                 });
             })
             // 최신순 정렬
-            ->latest()
+            ->latest('created_at')
+            ->latest('id')
             // 페이지네이션
             ->paginate(20)
             // 검색/필터링 Query String
@@ -97,7 +98,9 @@ class PostController extends Controller
             'reports',
             'comments' => function ($query) {
                 // 댓글을 최신순으로 정렬하고, 댓글 작성자 정보를 함께 로드
-                $query->latest()->with('user');
+                $query->whereNull('parent_id')
+                    ->latest()
+                    ->with(['user', 'replies.user']);
             },
         ]);
 

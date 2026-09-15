@@ -106,8 +106,8 @@
     <section class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
         <h2 class="text-lg font-bold text-gray-900">댓글 ({{ $post->comment_count }})</h2>
 
-        {{--<!-- 댓글 작성 폼 -->
-        <form action="{{ route('posts.comments.store', $post) }}" method="POST" class="space-y-3">
+        <!-- 댓글 작성 폼 -->
+        <form action="{{ route('comments.store', $post) }}" method="POST" class="space-y-3">
             @csrf
             <div>
                 <textarea
@@ -124,20 +124,169 @@
                     댓글 등록
                 </button>
             </div>
-        </form>--}}
+        </form>
 
         <!-- 댓글 목록 -->
         <div class="divide-y divide-gray-100">
             @forelse($post->comments as $comment)
-                <div class="py-4 space-y-1">
-                    <div class="flex items-center justify-between text-xs text-gray-500">
-                        <span class="font-semibold text-gray-700">{{ $comment->user->name }}</span>
-                        <span>{{ $comment->created_at->diffForHumans() }}</span>
+                <div class="py-5">
+                    <!-- 댓글 헤더 -->
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <!-- 프로필 -->
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
+                                {{ mb_substr($comment->user->name, 0, 1) }}
+                            </div>
+
+                            <div>
+                                <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold text-gray-800">
+                                {{ $comment->user->name }}
+                            </span>
+
+                                    <span class="text-xs text-gray-400">
+                                {{ $comment->created_at->diffForHumans() }}
+                            </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 댓글 액션 -->
+                        <div class="flex items-center gap-2 text-xs">
+                            <button
+                                    type="button"
+                                    onclick="document.getElementById('reply-{{ $comment->id }}').classList.toggle('hidden')"
+                                    class="rounded px-2 py-1 text-gray-500 transition hover:bg-blue-50 hover:text-blue-600"
+                            >
+                                답글
+                            </button>
+
+                            @can('delete', $comment)
+                                <form
+                                        action="{{ route('comments.destroy', [$post, $comment]) }}"
+                                        method="POST"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                            type="submit"
+                                            class="rounded px-2 py-1 text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                                    >
+                                        삭제
+                                    </button>
+                                </form>
+                            @endcan
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-800 leading-normal">{{ $comment->content }}</p>
+
+                    <!-- 댓글 내용 -->
+                    <div class="mt-3 pl-10">
+                        <p class="text-sm leading-6 text-gray-700">
+                            {{ $comment->content }}
+                        </p>
+
+                        <!-- 답글 작성 폼 -->
+                        <form
+                                id="reply-{{ $comment->id }}"
+                                action="{{ route('comments.store', $post) }}"
+                                method="POST"
+                                class="mt-4 hidden rounded-lg bg-gray-50 p-4"
+                        >
+                            @csrf
+
+                            <input
+                                    type="hidden"
+                                    name="parent_id"
+                                    value="{{ $comment->id }}"
+                            >
+
+                            <textarea
+                                    name="content"
+                                    rows="3"
+                                    placeholder="답글을 입력하세요..."
+                                    class="w-full resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                            ></textarea>
+
+                            <div class="mt-2 flex justify-end gap-2">
+                                <button
+                                        type="button"
+                                        onclick="document.getElementById('reply-{{ $comment->id }}').classList.add('hidden')"
+                                        class="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-gray-200"
+                                >
+                                    취소
+                                </button>
+
+                                <button
+                                        type="submit"
+                                        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                                >
+                                    답글 작성
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- 대댓글 -->
+                    @if($comment->replies->isNotEmpty())
+                        <div class="mt-4 ml-10 space-y-3 border-l-2 border-gray-100 pl-4">
+                            @foreach($comment->replies as $reply)
+                                <div class="rounded-lg bg-gray-50 px-4 py-3">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex h-7 w-7 items-center justify-center rounded-full bg-gray-200 text-xs font-bold text-gray-600">
+                                                {{ mb_substr($reply->user->name, 0, 1) }}
+                                            </div>
+
+                                            <div>
+                                                <div class="flex items-center gap-2">
+                                            <span class="text-sm font-semibold text-gray-700">
+                                                {{ $reply->user->name }}
+                                            </span>
+
+                                                    <span class="text-xs text-gray-400">
+                                                {{ $reply->created_at->diffForHumans() }}
+                                            </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        @can('delete', $reply)
+                                            <form
+                                                    action="{{ route('comments.destroy', [$post, $reply]) }}"
+                                                    method="POST"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+
+                                                <button
+                                                        type="submit"
+                                                        class="text-xs text-gray-400 transition hover:text-red-500"
+                                                >
+                                                    삭제
+                                                </button>
+                                            </form>
+                                        @endcan
+                                    </div>
+
+                                    <p class="mt-2 text-sm leading-6 text-gray-700">
+                                        {{ $reply->content }}
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             @empty
-                <p class="text-center text-sm text-gray-500 py-4">등록된 댓글이 없습니다.</p>
+                <div class="py-10 text-center">
+                    <p class="text-sm text-gray-400">
+                        아직 등록된 댓글이 없습니다.
+                    </p>
+
+                    <p class="mt-1 text-xs text-gray-300">
+                        첫 번째 댓글을 남겨보세요.
+                    </p>
+                </div>
             @endforelse
         </div>
     </section>
