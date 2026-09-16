@@ -1,15 +1,8 @@
-<!doctype html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <title>{{ $post->title }}</title>
-</head>
-<body class="bg-gray-50 p-8">
+@extends('layouts.app')
 
+@section('title', $post->title)
+
+@section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- 목록으로 돌아가기 버튼 -->
     <div>
@@ -140,13 +133,13 @@
 
                             <div>
                                 <div class="flex items-center gap-2">
-                            <span class="text-sm font-semibold text-gray-800">
-                                {{ $comment->user->name }}
-                            </span>
+                                    <span class="text-sm font-semibold text-gray-800">
+                                        {{ $comment->user->name }}
+                                    </span>
 
                                     <span class="text-xs text-gray-400">
-                                {{ $comment->created_at->diffForHumans() }}
-                            </span>
+                                        {{ $comment->created_at->diffForHumans() }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -293,13 +286,13 @@
 
                                             <div>
                                                 <div class="flex items-center gap-2">
-                                            <span class="text-sm font-semibold text-gray-700">
-                                                {{ $reply->user->name }}
-                                            </span>
+                                                    <span class="text-sm font-semibold text-gray-700">
+                                                        {{ $reply->user->name }}
+                                                    </span>
 
                                                     <span class="text-xs text-gray-400">
-                                                {{ $reply->created_at->diffForHumans() }}
-                                            </span>
+                                                        {{ $reply->created_at->diffForHumans() }}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
@@ -344,6 +337,4 @@
         </div>
     </section>
 </div>
-
-</body>
-</html>
+@endsection
