@@ -89,6 +89,30 @@ class PostControllerTest extends TestCase
             });
     }
 
+    public function test_user_can_view_post_detail(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->for($user)->create();
+
+        $response = $this->get(route('posts.show', $post));
+
+        $response->assertOk()
+            ->assertViewIs('posts.show')
+            ->assertViewHas('post');
+    }
+
+    public function test_author_can_view_edit_post_form(): void
+    {
+        $user = User::factory()->create();
+        $post = Post::factory()->for($user)->create();
+
+        $response = $this->actingAs($user)->get(route('posts.edit', $post));
+
+        $response->assertOk()
+            ->assertViewIs('posts.edit')
+            ->assertViewHas('post');
+    }
+
     public function test_example(): void
     {
         $response = $this->get('/');
