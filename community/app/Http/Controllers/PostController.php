@@ -7,6 +7,7 @@ use App\Http\Requests\Post\UpdateRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Services\TrendingPostService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class PostController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request, TrendingPostService $trendingPostService): View
     {
         $posts = Post::query()
             // 1. N+1 문제 예방: 단일/다대다 관계 Eager Loading
@@ -49,7 +50,10 @@ class PostController extends Controller
             // 검색/필터링 Query String
             ->withQueryString();
 
-        return view('posts.index', compact('posts'));
+        $weeklyBestPosts = $trendingPostService->getWeeklyBest();
+        $realtimePopularPosts = $trendingPostService->getRealtimePopular();
+
+        return view('posts.index', compact('posts', 'weeklyBestPosts', 'realtimePopularPosts'));
     }
 
     /**
@@ -57,8 +61,8 @@ class PostController extends Controller
      */
     public function create(): View
     {
-        $categories = Category::all();
-        $tags = Tag::all();
+        $categories = Category::getCachedActive();
+        $tags = Tag::getCachedAll();
 
         return view('posts.create', compact('categories', 'tags'));
     }
@@ -90,22 +94,21 @@ class PostController extends Controller
      */
     public function show(Post $post): View
     {
+        $post->increment('view_count');
+
         $post->load([
             'user',
             'category',
             'tags',
             'attachments',
-            'reports',
             'comments' => function ($query) {
-                // withTrashed() 기능은?
+                // withTrashed(): 삭제 처리(deleted_at IS NOT NULL)된 레코드까지 포함하여 조회하는 메서드
                 $query->withTrashed()
                     ->whereNull('parent_id')
                     ->latest()
                     ->with(['user', 'replies.user']);
             },
         ]);
-
-        $post->increment('view_count');
 
         return view('posts.show', compact('post'));
     }
@@ -123,9 +126,9 @@ class PostController extends Controller
             'attachments',
         ]);
 
-        // 수정 폼 내 선택 변경을 위한 전체 카테고리, 태그 목록 로드
-        $categories = Category::all();
-        $tags = Tag::all();
+        // 수정 화면에서도 캐싱된 카테고리/태그 목록 재사용
+        $categories = Category::getCachedActive();
+        $tags = Tag::getCachedAll();
 
         return view('posts.edit', compact('post', 'categories', 'tags'));
     }
@@ -138,7 +141,6 @@ class PostController extends Controller
         $this->authorize('update', $post);
 
         $validated = $request->validated();
-
         $post->update($validated);
 
         // 태그 동기화 예시

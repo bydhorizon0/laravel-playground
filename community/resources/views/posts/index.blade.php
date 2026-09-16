@@ -11,6 +11,63 @@
 <body class="bg-gray-50 p-8">
 
 <div class="max-w-4xl mx-auto space-y-4">
+    <!-- 실시간 인기글 & 주간 베스트 섹션 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <!-- 실시간 인기글 TOP 10 -->
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                <span>🔥 실시간 인기글</span>
+            </h3>
+            <ul class="divide-y divide-gray-100 text-sm">
+                @forelse($realtimePopularPosts as $index => $popularPost)
+                    <li class="py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 truncate mr-2">
+                            <span class="font-bold text-xs {{ $index < 3 ? 'text-red-500' : 'text-gray-400' }} w-4">
+                                {{ $index + 1 }}
+                            </span>
+                            <a href="{{ route('posts.show', $popularPost['id']) }}" class="text-gray-800 hover:text-blue-600 truncate">
+                                {{ $popularPost['title'] }}
+                            </a>
+                        </div>
+                        <div class="text-xs text-gray-400 flex items-center gap-2 shrink-0">
+                            <span>❤️ {{ $popularPost['like_count'] }}</span>
+                            <span>💬 {{ $popularPost['comment_count'] }}</span>
+                        </div>
+                    </li>
+                @empty
+                    <li class="py-2 text-xs text-gray-400">인기글이 없습니다.</li>
+                @endforelse
+            </ul>
+        </div>
+
+        <!-- 주간 베스트 TOP 10 -->
+        <div class="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+            <h3 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-1.5">
+                <span>👑 주간 베스트</span>
+            </h3>
+            <ul class="divide-y divide-gray-100 text-sm">
+                @forelse($weeklyBestPosts as $index => $weeklyPost)
+                    <li class="py-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5 truncate mr-2">
+                            <span class="font-bold text-xs {{ $index < 3 ? 'text-yellow-500' : 'text-gray-400' }} w-4">
+                                {{ $index + 1 }}
+                            </span>
+                            <a href="{{ route('posts.show', $weeklyPost['id']) }}" class="text-gray-800 hover:text-blue-600 truncate">
+                                {{ $weeklyPost['title'] }}
+                            </a>
+                        </div>
+                        <div class="text-xs text-gray-400 flex items-center gap-2 shrink-0">
+                            <span>❤️ {{ $weeklyPost['like_count'] }}</span>
+                            <span>💬 {{ $weeklyPost['comment_count'] }}</span>
+                        </div>
+                    </li>
+                @empty
+                    <li class="py-2 text-xs text-gray-400">베스트 글이 없습니다.</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
     <form action="{{ route('posts.index') }}" method="GET" class="flex gap-2 mb-6">
         <input
                 type="text"
