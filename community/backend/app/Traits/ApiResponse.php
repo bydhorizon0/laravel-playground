@@ -27,7 +27,7 @@ trait ApiResponse
         return \response()->json($response, $status);
     }
 
-    protected function createResponse(
+    protected function createdResponse(
         mixed $data,
         string $message = '리소스가 성공적으로 생성되었습니다.',
     ): JsonResponse {

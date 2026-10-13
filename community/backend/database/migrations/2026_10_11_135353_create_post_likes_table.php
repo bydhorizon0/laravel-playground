@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Post::class)->constrained()->cascadeOnDelete();
-            $table->timestamps();
+            $table->면();
 
             // 한 사용자가 한 게시글에 중복으로 좋아요를 누를 수 없도록 복합 유니크 제약
             $table->unique(['post_id', 'user_id']);
